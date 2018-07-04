@@ -1,6 +1,34 @@
+#Solution
+
+My solution uses heuristic and logic used in the walkthrough code and the lessons to achieve the following. -
+
+1. Make the car drive smoothly at highway speed.
+
+In lines 336-340 we use the cars current s and d frenet coordinates along with the map data in order to determine 3 future points spaced 30m, 60m and 90m ahead of the car respectively. These points are calculated using the getXY function which returns the global X, Y coordinates. These points are transformed to make the reference angle zero so that they can be used along with the spline. Eventually the spline is responsible for interpolation between these points and gives us the points that we can add to our final trajectory (Lines 393-394).
+
+Note that the following equation-
+
+N(number of spline points) * 0.02 (Every 20 ms the car moves to the next point on the list) * velocity = target distance (30m/60m/90m)
+
+
+2. Ensuring smooth transition from cycle to cycle
+
+Using previous path points: We calculate around 50 path points each cycle. Every cycle a number of these points are traversed. Instead of recalculating 50 path points each time we make use of the previous untraversed path first (in other to smoothen the transitions) and just calculate the 50 - (traversed path points). The spline function also helps out by enabling us to to estimate the location of points between the known waypoints.
+
+3. Preventing collisions (Line 253-272)
+The logic to prevent collisions is similar to the logic a driver would use in real life. If we are too close to a car in our lane we must slow down. We slow down over some number of iterations after identifying the slow car so that we don't exceed max acceleration. This strategy however is not foolproof as there may be cases where the car in front of us comes to a very sudden halt; in which case it may be difficult for us to avoid a collision.
+
+
+4. Lane changes (Line 274-301)
+The logic for lane changes is also straightforward. If the car ahead of us is slow; use the sensor fusion data to determine if its feasible for us to shift to the left or right lane.
+
+With the final code the car was able to complete 4 miles of the track in a little more than 5 min.
+
+![Path Planning Final Car](./final_car.png "Final Car Path Planning")
+
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).
 
@@ -38,13 +66,13 @@ Here is the data provided from the Simulator to the C++ Program
 #### Previous path data given to the Planner
 
 //Note: Return the previous list but with processed points removed, can be a nice tool to show how far along
-the path has processed since last time. 
+the path has processed since last time.
 
 ["previous_path_x"] The previous list of x points previously given to the simulator
 
 ["previous_path_y"] The previous list of y points previously given to the simulator
 
-#### Previous path's end s and d values 
+#### Previous path's end s and d values
 
 ["end_path_s"] The previous list's last point's frenet s value
 
@@ -52,7 +80,7 @@ the path has processed since last time.
 
 #### Sensor Fusion Data, a list of all other car's attributes on the same side of the road. (No Noise)
 
-["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates. 
+["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates.
 
 ## Details
 
@@ -82,7 +110,7 @@ A really helpful resource for doing this project and creating smooth trajectorie
   * Run either `install-mac.sh` or `install-ubuntu.sh`.
   * If you install from source, checkout to commit `e94b6e1`, i.e.
     ```
-    git clone https://github.com/uWebSockets/uWebSockets 
+    git clone https://github.com/uWebSockets/uWebSockets
     cd uWebSockets
     git checkout e94b6e1
     ```
@@ -137,4 +165,3 @@ still be compilable with cmake and make./
 
 ## How to write a README
 A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
-
